@@ -1,0 +1,18 @@
+{
+  "name": "wa-inbox",
+  "version": "2.3.0",
+  "description": "A browser inbox for your WhatsApp, powered by WPPConnect",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@wppconnect-team/wppconnect": "^2.3.5",
+    "@wppconnect/wa-js": "^4.7.1",
+    "@wppconnect/wa-version": "^1.5.5077",
+    "express": "^4.21.2",
+    "puppeteer": "^24.43.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inbox</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2316212E'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23F0AE1C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Sign in / create account -->
+<main id="auth" class="gate" hidden>
+  <section class="gate-card" style="grid-template-columns:1fr;max-width:400px">
+    <div class="gate-copy">
+      <h1>Sign in</h1>
+      <form id="auth-form" autocomplete="on" style="display:grid;gap:10px">
+        <input id="au-phone" type="tel" inputmode="tel" placeholder="Phone number with country code, e.g. 250788123456" autocomplete="tel" hidden style="padding:12px;border-radius:10px;border:1px solid #888;font:inherit">
+        <input id="au-name" placeholder="Phone number or username" autocomplete="username" required style="padding:12px;border-radius:10px;border:1px solid #888;font:inherit">
+        <input id="au-pass" type="password" placeholder="Password (8+ characters)" autocomplete="current-password" required style="padding:12px;border-radius:10px;border:1px solid #888;font:inherit">
+        <button type="submit" id="au-login" class="btn" style="padding:12px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer">Sign in</button>
+        <button type="button" id="au-reg" style="padding:12px;border-radius:10px;font:inherit;cursor:pointer;background:none;border:1px solid #888;color:inherit">Create account</button>
+        <button type="button" id="au-back" hidden style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">I already have an account</button>
+      </form>
+      <p id="au-err" class="gate-status err" role="alert"></p>
+    </div>
+  </section>
+</main>
+
+<!-- Pairing / connection screen -->
+<main id="gate" class="gate" hidden>
+  <section class="gate-card">
+    <div class="gate-copy">
+      <h1>Link your WhatsApp</h1>
+      <div id="link-choose" class="link-choose" hidden>
+        <p class="gate-note">Pick whichever fits the device you are using right now. Your login is remembered, so you only do this once.</p>
+        <button type="button" class="chip big" id="link-resume" hidden>Reconnect my saved login</button>
+        <div class="link-opt">
+          <b>On a phone, or WhatsApp is on this same device</b>
+          <span class="gate-note">Type your WhatsApp number, get an 8-character code, and enter it in WhatsApp.</span>
+          <div class="link-row"><select id="link-cc" aria-label="Country"></select><input id="link-num" inputmode="tel" autocomplete="tel-national" placeholder="Phone number, e.g. 82 123 4567"><button type="button" class="chip big" id="link-phone">Get code</button></div>
+          <span class="gate-note" id="link-full"></span>
+        </div>
+        <div class="link-opt">
+          <b>On a computer, with your phone in hand</b>
+          <span class="gate-note">Show a QR code and scan it with WhatsApp on your phone.</span>
+          <button type="button" class="chip big" id="link-qr">Show QR code</button>
+        </div>
+      </div>
+      <div id="link-steps" hidden>
+        <ol class="steps" id="steps-qr" hidden>
+          <li>Open WhatsApp on your phone</li>
+          <li>Go to <b>Settings → Linked devices</b></li>
+          <li>Tap <b>Link a device</b> and point the camera at the code</li>
+        </ol>
+        <ol class="steps" id="steps-code" hidden>
+          <li>Open WhatsApp on your phone</li>
+          <li>Go to <b>Settings → Linked devices → Link a device</b></li>
+          <li>Tap <b>Link with phone number instead</b></li>
+          <li>Type the code shown here</li>
+        </ol>
+        <button type="button" class="chip" id="link-cancel">Cancel / choose another way</button>
+      </div>
+      <p id="gate-status" class="gate-status" role="status">Starting…</p>
+      <p class="gate-note" id="gate-note"></p>
+      <p class="gate-note" id="gate-user"></p>
+      <button type="button" id="btn-signout" style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit">Sign out</button>
+    </div>
+    <div class="qr-frame" id="qr-frame">
+      <img id="qr-img" alt="WhatsApp pairing QR code" hidden>
+      <div id="pair-code" style="display:none;font:700 34px/1.2 monospace;letter-spacing:.12em;text-align:center"></div>
+      <div class="qr-wait" id="qr-wait"><span class="spinner"></span></div>
+    </div>
+  </section>
+</main>
+
+<!-- Inbox -->
+<div id="app" class="app" hidden>
+  <aside class="list" id="list">
+    <header class="list-head">
+      <div class="me">
+        <div class="avatar sm me-av" id="me-av">·</div>
+        <div>
+          <div class="me-name" id="me-name">Inbox</div>
+          <div class="me-sub" id="me-sub"></div>
+        </div>
+      </div>
+      <div class="head-actions">
+        <button class="icon-btn" id="btn-new" title="New chat" aria-label="New chat">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-account" title="Account and devices" aria-label="Account and devices">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-menu" title="Disconnect WhatsApp" aria-label="Disconnect WhatsApp">
+          <svg viewBox="0 0 24 24"><path d="M9 4H5v16h4M15 8l5 4-5 4M20 12H9"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search chats" autocomplete="off">
+    </div>
+    <div id="newchat" class="newchat" hidden>
+      <input id="newchat-num" inputmode="tel" placeholder="Phone number with country code, e.g. 250788123456">
+      <button id="newchat-go" class="btn">Open</button>
+    </div>
+    <ul class="chats" id="chats" role="listbox" aria-label="Chats"></ul>
+  </aside>
+
+  <section class="conv" id="conv">
+    <div class="empty" id="empty">
+      <div class="empty-mark"></div>
+      <p>Pick a conversation to start replying.</p>
+    </div>
+
+    <div class="thread" id="thread" hidden>
+      <header class="thread-head">
+        <button class="icon-btn back" id="btn-back" aria-label="Back to chats">
+          <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="avatar" id="th-av"></div>
+        <div class="th-meta">
+          <div class="th-name" id="th-name"></div>
+          <div class="th-sub" id="th-sub"></div>
+        </div>
+      </header>
+
+      <div class="msgs" id="msgs" tabindex="0" aria-live="polite"></div>
+      <button class="jump" id="jump" hidden>New messages ↓</button>
+
+      <div class="replying" id="replying" hidden>
+        <div class="replying-body"><b>Replying to</b><span id="replying-text"></span></div>
+        <button class="icon-btn sm" id="replying-x" aria-label="Cancel reply">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <input type="file" id="file" hidden>
+        <button type="button" class="icon-btn" id="btn-attach" title="Attach a file" aria-label="Attach a file">
+          <svg viewBox="0 0 24 24"><path d="M20 11.5l-8 8a5 5 0 01-7-7l8.5-8.5a3.3 3.3 0 014.7 4.7L9.7 17.2a1.7 1.7 0 01-2.4-2.4L15 7"/></svg>
+        </button>
+        <textarea id="input" rows="1" placeholder="Write a message" aria-label="Message"></textarea>
+        <button type="submit" class="send" id="btn-send" aria-label="Send">
+          <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-7-7-1z"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<dialog id="account" class="acct">
+  <div class="acct-head"><h2 id="acct-title">Account</h2><button class="icon-btn sm" id="acct-x" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <h3>Sign in with phone number</h3>
+  <p class="acct-note">With a number saved here you can sign in using just that number and your password.</p>
+  <div class="link-row"><input id="acct-phone" type="tel" inputmode="tel" placeholder="e.g. 250788123456"><button class="chip" id="acct-phone-save">Save</button></div>
+  <h3>API key</h3>
+  <p class="acct-note">For your other apps (header <code>X-Api-Key</code>). Messages are sent from your WhatsApp only.</p>
+  <div class="acct-key"><code id="acct-key">••••••••••••••••</code><button class="chip" id="acct-show">Show</button><button class="chip" id="acct-copy">Copy</button><button class="chip" id="acct-regen">New key</button></div>
+  <h3>Devices signed in</h3>
+  <ul class="devs" id="devs"></ul>
+  <div class="acct-actions"><button class="chip" id="acct-others">Sign out other devices</button><button class="chip danger" id="acct-out">Sign out this device</button></div>
+</dialog>
+<div class="toast" id="toast" role="alert" hidden></div>
+<script src="countries.js?v=3"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>
