@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    shm_size: 1gb                 # Chrome needs shared memory
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      MAX_USERS: ${MAX_USERS:-20}
+      MAX_CLIENTS: ${MAX_CLIENTS:-10}      # one Chrome per linked user, ~300-500 MB each
+      ALLOW_SIGNUP: ${ALLOW_SIGNUP:-true}  # set false once everyone registered
+      DEFAULT_COUNTRY_CODE: ${DEFAULT_COUNTRY_CODE:-}
+      ALLOW_ORIGIN: ${ALLOW_ORIGIN:-}
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+    volumes:
+      - ./data:/app/data           # accounts and signing secret  (BACK THIS UP)
+      - ./tokens:/app/tokens       # WhatsApp logins              (BACK THIS UP, keep private)
+    ports:
+      - "${APP_PORT:-3000}:3000"   # use 127.0.0.1:3000 here if you run the HTTPS proxy below
+
+  # Optional HTTPS: docker compose --profile https up -d   (needs DOMAIN in .env pointing at this server)
+  caddy:
+    profiles: ["https"]
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [app]
+
+volumes:
+  caddy_data:

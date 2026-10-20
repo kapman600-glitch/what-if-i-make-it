@@ -246,7 +246,7 @@ async function launchBrowser(session) {
   const fresh = !fs.existsSync(dir);
   fs.mkdirSync(dir, { recursive: true });
   if (fresh) fs.writeFileSync(path.join(dir, '.pending'), ''); // unfinished until WhatsApp connects
-  return puppeteer.launch({ headless: true, userDataDir: dir, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  return puppeteer.launch({ headless: true, userDataDir: dir, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'] });
 }
 
 function makeLogger(c, live) {
