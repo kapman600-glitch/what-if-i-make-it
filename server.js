@@ -11,7 +11,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const os = require('os');
 
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || process.env.SERVER_PORT || 3000); // SERVER_PORT: game-panel hosts (Pterodactyl) assign the port this way
 const HOST = process.env.HOST || '0.0.0.0'; // reachable from other devices on your network
 const DATA = path.resolve(process.env.DATA_DIR || path.join(__dirname, 'data'));
 const ALLOW_SIGNUP = process.env.ALLOW_SIGNUP !== 'false';
